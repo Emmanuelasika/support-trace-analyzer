@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TraceKit turns raw API failure evidence into safe, reproducible engineering escalations.">
+  <meta property="og:title" content="TraceKit — Incident evidence, made useful">
+  <meta property="og:description" content="A privacy-first incident analysis CLI for developer support teams.">
+  <title>TraceKit — Incident evidence, made useful</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="#top"><span class="mark">T</span> TraceKit</a>
+    <div class="nav-links">
+      <a href="#workflow">Workflow</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#example">Example</a>
+      <a class="button small" href="https://github.com/Emmanuelasika/TraceKit">View source ↗</a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="eyebrow"><span></span> Privacy-first developer support tooling</div>
+      <h1>Turn “the API is broken” into an escalation engineering can use.</h1>
+      <p class="lede">TraceKit validates incident evidence, removes secrets and personal data, classifies the failure, and produces a consistent investigation bundle—locally, deterministically, and without uploading customer logs.</p>
+      <div class="actions">
+        <a class="button" href="#example">See a real bundle</a>
+        <a class="text-link" href="https://github.com/Emmanuelasika/TraceKit#quick-start">Install the CLI <span>→</span></a>
+      </div>
+      <div class="terminal" aria-label="TraceKit terminal example">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>incident-response / terminal</span></div>
+        <pre><span class="prompt">$</span> tracekit analyze evidence.json --output incident.md
+<span class="success">✓</span> Contract validated
+<span class="success">✓</span> 4 sensitive values redacted
+<span class="success">✓</span> Classified as <strong>rate_limit · P2 · high confidence</strong>
+<span class="success">✓</span> Wrote safe incident bundle <em>7b4755b5ccd192b9</em></pre>
+      </div>
+    </section>
+
+    <section class="proof">
+      <div><strong>0</strong><span>network calls</span></div>
+      <div><strong>JSON · JSONL</strong><span>batch-ready inputs</span></div>
+      <div><strong>4</strong><span>operator commands</span></div>
+      <div><strong>8</strong><span>regression tests</span></div>
+    </section>
+
+    <section id="workflow" class="section">
+      <div class="section-heading">
+        <span class="kicker">The support workflow</span>
+        <h2>Evidence in. Ambiguity out.</h2>
+        <p>Every stage exists to shorten time-to-resolution while keeping customer data out of tickets and chat threads.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature"><span class="number">01</span><h3>Validate the contract</h3><p>Reject malformed status codes, latency, headers, and batch shapes with bounded operator errors.</p><code>tracekit validate evidence.jsonl</code></article>
+        <article class="feature"><span class="number">02</span><h3>Redact recursively</h3><p>Sanitize credential-shaped keys, bearer tokens, API keys, passwords, secrets, and email addresses at any depth.</p><code>tracekit redact evidence.json</code></article>
+        <article class="feature"><span class="number">03</span><h3>Diagnose consistently</h3><p>Classify auth, rate-limit, request-contract, latency, upstream, and unknown failures using inspectable rules.</p><code>confidence: high</code></article>
+        <article class="feature"><span class="number">04</span><h3>Cluster safely</h3><p>Group recurring failures using fingerprints that exclude request IDs and occurrence timestamps.</p><code>tracekit cluster evidence.jsonl</code></article>
+      </div>
+    </section>
+
+    <section id="architecture" class="section architecture">
+      <div class="section-heading">
+        <span class="kicker">Architecture</span>
+        <h2>A small, deliberate trust boundary.</h2>
+        <p>Raw evidence never reaches a serializer. Redaction happens before diagnosis output exists.</p>
+      </div>
+      <div class="flow" role="img" aria-label="TraceKit architecture: input, validation, redaction, diagnosis, output">
+        <div class="node"><b>01</b><strong>Evidence</strong><span>JSON / JSONL</span></div>
+        <span class="arrow">→</span>
+        <div class="node"><b>02</b><strong>Contract</strong><span>typed validation</span></div>
+        <span class="arrow">→</span>
+        <div class="node accent"><b>03</b><strong>Redaction</strong><span>trust boundary</span></div>
+        <span class="arrow">→</span>
+        <div class="node"><b>04</b><strong>Diagnosis</strong><span>deterministic rules</span></div>
+        <span class="arrow">→</span>
+        <div class="node"><b>05</b><strong>Bundle</strong><span>Markdown / JSON</span></div>
+      </div>
+      <div class="principles">
+        <div><h3>No hidden inference</h3><p>Classification logic is readable Python, versioned with tests, and suitable for review during an escalation.</p></div>
+        <div><h3>No silent exfiltration</h3><p>The application performs no network requests. Evidence remains on the operator’s machine.</p></div>
+        <div><h3>No false certainty</h3><p>Every result includes an explicit confidence level, observations, next actions, and escalation criteria.</p></div>
+      </div>
+    </section>
+
+    <section id="example" class="section example">
+      <div class="section-heading">
+        <span class="kicker">Generated artifact</span>
+        <h2>An escalation that answers the next question.</h2>
+      </div>
+      <div class="report">
+        <div class="report-head"><div><span>INCIDENT BUNDLE</span><h3>7b4755b5ccd192b9</h3></div><span class="severity">P2 · HIGH CONFIDENCE</span></div>
+        <div class="report-grid">
+          <div><small>CLASSIFICATION</small><strong>Rate limit or concurrency pressure</strong></div>
+          <div><small>REQUEST ID</small><strong>req_demo_123</strong></div>
+          <div><small>OBSERVED LATENCY</small><strong>214 ms</strong></div>
+          <div><small>ENVIRONMENT</small><strong>Production</strong></div>
+        </div>
+        <div class="report-body">
+          <h4>Recommended actions</h4>
+          <ol><li>Honor <code>Retry-After</code> when present.</li><li>Use bounded exponential backoff with jitter.</li><li>Measure concurrency before requesting a limit change.</li></ol>
+          <h4>Safe evidence</h4>
+          <pre>{"status_code": 429, "authorization": "[REDACTED]"}</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section cta">
+      <span class="kicker">Open source · MIT licensed</span>
+      <h2>Make the next escalation faster than the last.</h2>
+      <p>Run locally, inspect every rule, and adapt the contract to your support operation.</p>
+      <a class="button light" href="https://github.com/Emmanuelasika/TraceKit">Explore TraceKit on GitHub ↗</a>
+    </section>
+  </main>
+
+  <footer><span>TraceKit · Built for evidence-driven support engineering</span><a href="https://github.com/Emmanuelasika">Emmanuel Asika</a></footer>
+</body>
+</html>
