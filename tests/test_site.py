@@ -52,3 +52,27 @@ def test_pages_avoids_rejected_case_file_framing():
     assert "EVIDENCE ROOM" not in page
     assert "CASE TK" not in page
     assert "INVESTIGATION LOG" not in page
+
+
+def test_pages_uses_accessible_semantic_states_for_real_evidence():
+    root = Path(__file__).parents[1]
+    page = (root / "docs/index.html").read_text(encoding="utf-8")
+    css = (root / "docs/site.css").read_text(encoding="utf-8")
+    for state in ("semantic-info", "semantic-safe", "semantic-warning", "semantic-unsafe"):
+        assert state in page
+        assert f".{state}" in css
+    for token in ("--info:#225c9f", "--safe:#237346", "--warning:#956200", "--unsafe:#b42318"):
+        assert token in css
+    assert 'class="code-file unsafe-file"' in page
+    assert 'class="code-file safe-file"' in page
+
+
+def test_pages_has_product_specific_transformation_and_code_tokens():
+    root = Path(__file__).parents[1]
+    page = (root / "docs/index.html").read_text(encoding="utf-8")
+    assert 'class="transformation"' in page
+    assert "customer-evidence.json" in page
+    assert "safe-evidence.json" in page
+    assert "Classification report" in page
+    for token_class in ("key", "string", "number", "unsafe-token", "safe-token", "prompt", "flag"):
+        assert f'class="{token_class}"' in page

@@ -17,8 +17,11 @@
       <h1>Turn raw API failures into safe, useful engineering escalations.</h1>
       <p class="lead">Support Trace Analyzer is a local command-line tool that validates incident evidence, removes common secrets and personal data, assigns an explainable failure category, and creates a consistent Markdown or JSON report.</p>
       <p class="actions"><a class="button" href="#quick-start">Get started</a><a href="#example">See a real example →</a></p>
-      <pre><code><span>$</span> tracekit analyze fixtures/rate-limit.json --output incident.md
-Wrote 1 safe incident bundle(s) to incident.md</code></pre>
+      <div class="terminal-window">
+        <div class="code-head"><span>Terminal</span><span class="badge info">LOCAL · NO NETWORK</span></div>
+        <pre><code><span class="prompt">$</span> <span class="command-name">tracekit analyze</span> fixtures/rate-limit.json <span class="flag">--output</span> incident.md
+<span class="success-text">Wrote 1 safe incident bundle(s) to incident.md</span></code></pre>
+      </div>
       <p class="small">The project is named Support Trace Analyzer. The installed command remains <code>tracekit</code> for compatibility.</p>
     </section>
 
@@ -33,7 +36,7 @@ Wrote 1 safe incident bundle(s) to incident.md</code></pre>
         <li><strong>Create the handoff.</strong> Include safe evidence, observations, next actions, reproduction steps, and escalation criteria.</li>
         <li><strong>Group repeated failures.</strong> Use a safe fingerprint that ignores volatile request IDs and timestamps.</li>
       </ul>
-      <aside><strong>Local by design:</strong> the tool makes no network requests. It does not upload evidence or call an AI model.</aside>
+      <aside class="semantic-info"><strong>Local by design:</strong> the tool makes no network requests. It does not upload evidence or call an AI model.</aside>
     </section>
 
     <section id="use-cases">
@@ -63,41 +66,55 @@ Wrote 1 safe incident bundle(s) to incident.md</code></pre>
     <section id="example">
       <h2>A realistic example</h2>
       <p>A customer reports that <code>POST /v1/messages</code> is unavailable. Their evidence actually shows a 429 response and contains a Bearer credential.</p>
-      <h3>Input</h3>
-      <pre><code>{
-  "summary": "POST /v1/messages returned 429",
-  "status_code": 429,
-  "request_id": "req_demo_123",
-  "latency_ms": 214,
-  "headers": {"retry-after": "2"},
-  "body": "Authorization: Bearer sk_demo_secret_123456789"
-}</code></pre>
-      <h3>Command</h3>
-      <pre><code><span>$</span> tracekit validate fixtures/rate-limit.json
-{"items": 1, "valid": true}
+      <div class="transformation" aria-label="Raw evidence transformed into sanitized evidence">
+        <div class="code-file unsafe-file">
+          <div class="code-head"><span>customer-evidence.json</span><span class="badge unsafe">UNSAFE</span></div>
+          <pre><code><span class="punctuation">{</span>
+  <span class="key">"summary"</span><span class="punctuation">:</span> <span class="string">"POST /v1/messages returned 429"</span><span class="punctuation">,</span>
+  <span class="key">"status_code"</span><span class="punctuation">:</span> <span class="number">429</span><span class="punctuation">,</span>
+  <span class="key">"request_id"</span><span class="punctuation">:</span> <span class="string">"req_demo_123"</span><span class="punctuation">,</span>
+  <span class="key">"latency_ms"</span><span class="punctuation">:</span> <span class="number">214</span><span class="punctuation">,</span>
+  <span class="key">"headers"</span><span class="punctuation">:</span> <span class="punctuation">{</span><span class="key">"retry-after"</span><span class="punctuation">:</span> <span class="string">"2"</span><span class="punctuation">},</span>
+  <span class="key">"body"</span><span class="punctuation">:</span> <span class="unsafe-token">"Authorization: Bearer
+  sk_demo_secret_123456789"</span>
+<span class="punctuation">}</span></code></pre>
+        </div>
+        <div class="transform-arrow"><span>redact</span><b>→</b></div>
+        <div class="code-file safe-file">
+          <div class="code-head"><span>safe-evidence.json</span><span class="badge safe">SANITIZED</span></div>
+          <pre><code><span class="punctuation">{</span>
+  <span class="key">"summary"</span><span class="punctuation">:</span> <span class="string">"POST /v1/messages returned 429"</span><span class="punctuation">,</span>
+  <span class="key">"status_code"</span><span class="punctuation">:</span> <span class="number">429</span><span class="punctuation">,</span>
+  <span class="key">"request_id"</span><span class="punctuation">:</span> <span class="string">"req_demo_123"</span><span class="punctuation">,</span>
+  <span class="key">"latency_ms"</span><span class="punctuation">:</span> <span class="number">214</span><span class="punctuation">,</span>
+  <span class="key">"headers"</span><span class="punctuation">:</span> <span class="punctuation">{</span><span class="key">"retry-after"</span><span class="punctuation">:</span> <span class="string">"2"</span><span class="punctuation">},</span>
+  <span class="key">"body"</span><span class="punctuation">:</span> <span class="safe-token">"Authorization: Bearer
+  [REDACTED]"</span>
+<span class="punctuation">}</span></code></pre>
+        </div>
+      </div>
+      <div class="terminal-window example-command">
+        <div class="code-head"><span>Terminal</span><span class="badge info">VALIDATED</span></div>
+        <pre><code><span class="prompt">$</span> <span class="command-name">tracekit validate</span> fixtures/rate-limit.json
+<span class="output">{"items": 1, "valid": true}</span>
 
-<span>$</span> tracekit analyze fixtures/rate-limit.json --output incident.md
-Wrote 1 safe incident bundle(s) to incident.md</code></pre>
-      <h3>Output</h3>
-      <dl class="result"><div><dt>Classification</dt><dd><code>rate_limit</code></dd></div><div><dt>Severity</dt><dd><code>P2</code></dd></div><div><dt>Confidence</dt><dd><code>high</code></dd></div><div><dt>Fingerprint</dt><dd><code>7b4755b5ccd192b9</code></dd></div></dl>
-      <pre><code>{
-  "body": "Authorization: Bearer [REDACTED]",
-  "headers": {"retry-after": "2"},
-  "request_id": "req_demo_123",
-  "status_code": 429
-}</code></pre>
+<span class="prompt">$</span> <span class="command-name">tracekit analyze</span> fixtures/rate-limit.json <span class="flag">--output</span> incident.md
+<span class="success-text">Wrote 1 safe incident bundle(s) to incident.md</span></code></pre>
+      </div>
+      <div class="report-head"><h3>Classification report</h3><span class="badge warning">INVESTIGATE</span></div>
+      <dl class="result semantic-warning"><div><dt>Classification</dt><dd><code>rate_limit</code></dd></div><div><dt>Severity</dt><dd><code>P2</code></dd></div><div><dt>Confidence</dt><dd><code>high</code></dd></div><div><dt>Fingerprint</dt><dd><code>7b4755b5ccd192b9</code></dd></div></dl>
       <p>The report recommends honoring <code>Retry-After</code>, adding bounded backoff with jitter, and measuring concurrency. It does not claim that any one factor is the proven root cause.</p>
     </section>
 
     <section id="case-story">
       <h2>Complete case story: from report to result</h2>
       <div class="story">
-        <article><h3>The problem</h3><p>At 09:17, support receives “the production API is down” with a copied response. Forwarding it would leak a credential. Treating it as downtime would also misroute the case: the evidence is a fast 429 with a two-second retry instruction.</p></article>
-        <article><h3>The investigation</h3><p>Support previews a safe version with <code>redact</code>, checks the intake with <code>validate</code>, then uses <code>analyze</code> to create a rate-limit bundle containing the request ID, sanitized body, next actions, and reproduction.</p></article>
-        <article><h3>The recurrence check</h3><p>Three morning reports are passed to <code>cluster</code>. Because request IDs and timestamps do not affect the fingerprint, they group under <code>7b4755b5ccd192b9</code>. This is evidence of a similar shape, not proof of one cause.</p></article>
-        <article><h3>The result</h3><p>Engineering receives one reviewed escalation instead of three screenshots. Support first checks Retry-After handling, bounded retries, and concurrency. If the issue persists, the request ID and reproduction are ready for deeper investigation.</p></article>
+        <article class="semantic-unsafe"><h3>The problem</h3><p>At 09:17, support receives “the production API is down” with a copied response. Forwarding it would leak a credential. Treating it as downtime would also misroute the case: the evidence is a fast 429 with a two-second retry instruction.</p></article>
+        <article class="semantic-warning"><h3>The investigation</h3><p>Support previews a safe version with <code>redact</code>, checks the intake with <code>validate</code>, then uses <code>analyze</code> to create a rate-limit bundle containing the request ID, sanitized body, next actions, and reproduction.</p></article>
+        <article class="semantic-info"><h3>The recurrence check</h3><p>Three morning reports are passed to <code>cluster</code>. Because request IDs and timestamps do not affect the fingerprint, they group under <code>7b4755b5ccd192b9</code>. This is evidence of a similar shape, not proof of one cause.</p></article>
+        <article class="semantic-safe"><h3>The result</h3><p>Engineering receives one reviewed escalation instead of three screenshots. Support first checks Retry-After handling, bounded retries, and concurrency. If the issue persists, the request ID and reproduction are ready for deeper investigation.</p></article>
       </div>
-      <aside><strong>What improved:</strong> no credential in the handoff, correct initial routing, fewer duplicate reports, and a clear escalation threshold.</aside>
+      <aside class="semantic-safe"><strong>What improved:</strong> no credential in the handoff, correct initial routing, fewer duplicate reports, and a clear escalation threshold.</aside>
     </section>
 
     <section id="quick-start">
@@ -118,7 +135,7 @@ Wrote 1 safe incident bundle(s) to incident.md</code></pre>
       <p>The core analysis module performs validation, redaction, classification, fingerprinting, and rendering without network or filesystem access. The CLI owns input and output. This keeps the sensitive boundary small and directly testable.</p>
     </section>
 
-    <section id="limitations">
+    <section id="limitations" class="semantic-unsafe">
       <h2>Limitations and tradeoffs</h2>
       <ul><li><strong>Redaction is pattern-based.</strong> Unusual secrets can evade it and innocent matches can be removed. Review the output.</li><li><strong>It is not comprehensive DLP.</strong> Names, phone numbers, and arbitrary customer data are not detected.</li><li><strong>Classification is a routing heuristic.</strong> It cannot inspect live health, SDK versions, account limits, logs, traces, or provider telemetry.</li><li><strong>Fingerprints are clues, not incident IDs.</strong> Similar evidence can have different causes.</li><li><strong>A human owns the handoff.</strong> There is no automatic ticket submission.</li></ul>
     </section>
