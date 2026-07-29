@@ -3,145 +3,162 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Support Trace Analyzer turns raw API failure evidence into a sanitized, reproducible engineering escalation.">
-  <meta property="og:title" content="Support Trace Analyzer">
-  <meta property="og:description" content="Validate, redact, classify and group API incident evidence locally before escalating it.">
-  <title>Support Trace Analyzer</title>
+  <meta name="description" content="A local evidence refinery for developer support: validate, redact, classify and hand off API failures without leaking the payload.">
+  <meta name="theme-color" content="#f6f3ec">
+  <meta property="og:title" content="Support Trace Analyzer — evidence, made useful">
+  <meta property="og:description" content="Watch an unsafe customer trace become a reviewable engineering escalation.">
+  <meta property="og:image" content="https://emmanuelasika.github.io/support-trace-analyzer/assets/trace-transformation.webp">
+  <meta property="og:image:alt" content="Raw request traces crossing a redaction boundary and resolving into a structured incident report">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://emmanuelasika.github.io/support-trace-analyzer/">
+  <title>Support Trace Analyzer — evidence, made useful</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="site.css">
+  <script src="site.js" defer></script>
 </head>
 <body>
-  <header><nav aria-label="Main navigation"><a class="brand" href="#top">Support Trace Analyzer</a><div><a href="#use-cases">Use cases</a><a href="#how-it-works">How it works</a><a href="#example">Example</a><a href="#quick-start">Quick start</a><a href="https://github.com/Emmanuelasika/support-trace-analyzer">GitHub ↗</a></div></nav></header>
-  <main id="top">
-    <section class="hero">
-      <p class="eyebrow">Open-source developer support tool</p>
-      <h1>Turn raw API failures into safe, useful engineering escalations.</h1>
-      <p class="lead">Support Trace Analyzer is a local command-line tool that validates incident evidence, removes common secrets and personal data, assigns an explainable failure category, and creates a consistent Markdown or JSON report.</p>
-      <p class="actions"><a class="button" href="#quick-start">Get started</a><a href="#example">See a real example →</a></p>
-      <div class="terminal-window">
-        <div class="code-head"><span>Terminal</span><span class="badge info">LOCAL · NO NETWORK</span></div>
-        <pre><code><span class="prompt">$</span> <span class="command-name">tracekit analyze</span> fixtures/rate-limit.json <span class="flag">--output</span> incident.md
-<span class="success-text">Wrote 1 safe incident bundle(s) to incident.md</span></code></pre>
-      </div>
-      <p class="small">The project is named Support Trace Analyzer. The installed command remains <code>tracekit</code> for compatibility.</p>
-    </section>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="masthead">
+    <a class="wordmark" href="#top"><i></i> Support Trace Analyzer</a>
+    <nav aria-label="Primary navigation">
+      <a href="#refinery">Live example</a>
+      <a href="#case-study">Case study</a>
+      <a href="#install">Install</a>
+    </nav>
+    <a class="github-link" href="https://github.com/Emmanuelasika/support-trace-analyzer">GitHub <span>↗</span></a>
+  </header>
 
-    <section id="what-it-does">
-      <h2>What it does</h2>
-      <p>Support cases often begin with a screenshot, a copied response, or a message saying an API is “down.” Those reports are hard to investigate, and copied payloads can contain credentials that should never reach a ticket or chat channel.</p>
-      <p>Support Trace Analyzer provides a repeatable intake step before escalation:</p>
-      <ul class="features">
-        <li><strong>Validate evidence.</strong> Reject impossible status codes, negative latency, malformed headers, and invalid fields.</li>
-        <li><strong>Redact sensitive values.</strong> Remove secret-shaped keys, Bearer tokens, API keys, passwords, <code>sk-…</code> values, and email addresses recursively.</li>
-        <li><strong>Classify the failure family.</strong> Route authentication, rate-limit, upstream, latency, request-contract, and unknown failures using readable rules.</li>
-        <li><strong>Create the handoff.</strong> Include safe evidence, observations, next actions, reproduction steps, and escalation criteria.</li>
-        <li><strong>Group repeated failures.</strong> Use a safe fingerprint that ignores volatile request IDs and timestamps.</li>
-      </ul>
-      <aside class="semantic-info"><strong>Local by design:</strong> the tool makes no network requests. It does not upload evidence or call an AI model.</aside>
-    </section>
-
-    <section id="use-cases">
-      <h2>Who it is for and when to use it</h2>
-      <p>It is intended for product support engineers, developer support teams, solutions engineers, API onboarding teams, and engineers who review customer escalations.</p>
-      <div class="table">
-        <div class="thead"><span>Situation</span><span>Command</span><span>Result</span></div>
-        <div><span>A customer pasted a raw request</span><code>tracekit redact</code><span>A safe preview before sharing</span></div>
-        <div><span>A failure needs engineering review</span><code>tracekit analyze</code><span>A structured incident bundle</span></div>
-        <div><span>Intake data may be malformed</span><code>tracekit validate</code><span>A clear result and scriptable exit code</span></div>
-        <div><span>Many reports may share a pattern</span><code>tracekit cluster</code><span>Groups by sanitized fingerprint</span></div>
-      </div>
-      <p class="small">It is not a log store, monitoring service, tracing system, comprehensive DLP tool, or automatic root-cause detector.</p>
-    </section>
-
-    <section id="how-it-works">
-      <h2>How it works</h2>
-      <ol class="steps">
-        <li><b>1</b><div><h3>Load and validate</h3><p>Accept one JSON object, an array, or JSONL, then check the evidence contract.</p></div></li>
-        <li><b>2</b><div><h3>Redact before output exists</h3><p>Nested dictionaries, arrays, headers, and bodies pass through the redaction boundary. Renderers only receive sanitized evidence.</p></div></li>
-        <li><b>3</b><div><h3>Apply inspectable triage rules</h3><p>Status codes and bounded evidence determine classification, severity, confidence, observations, and next actions.</p></div></li>
-        <li><b>4</b><div><h3>Fingerprint safe evidence</h3><p>A short SHA-256-derived fingerprint excludes <code>request_id</code> and <code>occurred_at</code> so repeated instances can group together.</p></div></li>
-        <li><b>5</b><div><h3>Write a report for review</h3><p>Receive Markdown for a human handoff or JSON for local automation. Every report asks for review.</p></div></li>
-      </ol>
-    </section>
-
-    <section id="example">
-      <h2>A realistic example</h2>
-      <p>A customer reports that <code>POST /v1/messages</code> is unavailable. Their evidence actually shows a 429 response and contains a Bearer credential.</p>
-      <div class="transformation" aria-label="Raw evidence transformed into sanitized evidence">
-        <div class="code-file unsafe-file">
-          <div class="code-head"><span>customer-evidence.json</span><span class="badge unsafe">UNSAFE</span></div>
-          <pre><code><span class="punctuation">{</span>
-  <span class="key">"summary"</span><span class="punctuation">:</span> <span class="string">"POST /v1/messages returned 429"</span><span class="punctuation">,</span>
-  <span class="key">"status_code"</span><span class="punctuation">:</span> <span class="number">429</span><span class="punctuation">,</span>
-  <span class="key">"request_id"</span><span class="punctuation">:</span> <span class="string">"req_demo_123"</span><span class="punctuation">,</span>
-  <span class="key">"latency_ms"</span><span class="punctuation">:</span> <span class="number">214</span><span class="punctuation">,</span>
-  <span class="key">"headers"</span><span class="punctuation">:</span> <span class="punctuation">{</span><span class="key">"retry-after"</span><span class="punctuation">:</span> <span class="string">"2"</span><span class="punctuation">},</span>
-  <span class="key">"body"</span><span class="punctuation">:</span> <span class="unsafe-token">"Authorization: Bearer
-  sk_demo_secret_123456789"</span>
-<span class="punctuation">}</span></code></pre>
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <p class="kicker"><span>01</span> Local evidence refinery</p>
+        <h1>The customer sent a trace.<br><em>Make it safe. Make it useful.</em></h1>
+        <p class="intro">I built Support Trace Analyzer for the uncomfortable gap between “the API is down” and an engineering team having enough safe evidence to act. It turns raw JSON or JSONL into a redacted, classified, reproducible incident bundle—entirely on your machine.</p>
+        <div class="hero-actions">
+          <a class="primary" href="#refinery">Run the example <span>↓</span></a>
+          <a class="secondary" href="https://github.com/Emmanuelasika/support-trace-analyzer">Read the source ↗</a>
         </div>
-        <div class="transform-arrow"><span>redact</span><b>→</b></div>
-        <div class="code-file safe-file">
-          <div class="code-head"><span>safe-evidence.json</span><span class="badge safe">SANITIZED</span></div>
-          <pre><code><span class="punctuation">{</span>
-  <span class="key">"summary"</span><span class="punctuation">:</span> <span class="string">"POST /v1/messages returned 429"</span><span class="punctuation">,</span>
-  <span class="key">"status_code"</span><span class="punctuation">:</span> <span class="number">429</span><span class="punctuation">,</span>
-  <span class="key">"request_id"</span><span class="punctuation">:</span> <span class="string">"req_demo_123"</span><span class="punctuation">,</span>
-  <span class="key">"latency_ms"</span><span class="punctuation">:</span> <span class="number">214</span><span class="punctuation">,</span>
-  <span class="key">"headers"</span><span class="punctuation">:</span> <span class="punctuation">{</span><span class="key">"retry-after"</span><span class="punctuation">:</span> <span class="string">"2"</span><span class="punctuation">},</span>
-  <span class="key">"body"</span><span class="punctuation">:</span> <span class="safe-token">"Authorization: Bearer
-  [REDACTED]"</span>
-<span class="punctuation">}</span></code></pre>
+        <ul class="facts" aria-label="Key project facts">
+          <li><strong>0</strong><span>network calls</span></li>
+          <li><strong>5</strong><span>failure families</span></li>
+          <li><strong>1</strong><span>reviewable handoff</span></li>
+        </ul>
+      </div>
+      <figure class="hero-art">
+        <img src="assets/trace-transformation.webp" alt="Raw request traces cross a redaction boundary and resolve into structured diagnostic output" width="1672" height="941">
+        <figcaption><span>A</span> raw evidence <i></i><span>B</span> redaction boundary <i></i><span>C</span> safe diagnosis</figcaption>
+      </figure>
+    </section>
+
+    <section class="premise" aria-labelledby="premise-title">
+      <p class="section-index">The premise / 02</p>
+      <div>
+        <h2 id="premise-title">Most “API incidents” arrive as a story, a screenshot, and too much sensitive data.</h2>
+        <p class="large-copy">A useful escalation needs a request ID, status, sanitized payload, reproducible steps, and an honest confidence level. This tool creates that shape before evidence is pasted into another system.</p>
+      </div>
+      <div class="not-this">
+        <p>It is deliberately <strong>not</strong> an observability platform, an automatic root-cause detector, or a black-box AI classifier.</p>
+        <p>Its rules are boring on purpose: readable, testable and easy for a support engineer to challenge.</p>
+      </div>
+    </section>
+
+    <section class="refinery" id="refinery" aria-labelledby="refinery-title">
+      <div class="section-heading">
+        <p class="section-index">Try the workflow / 03</p>
+        <h2 id="refinery-title">Follow one trace through the refinery.</h2>
+        <p>Choose a stage. The evidence below is the checked-in <code>fixtures/rate-limit.json</code>, not marketing copy.</p>
+      </div>
+      <div class="stage-switcher" role="tablist" aria-label="Trace analysis stages">
+        <button role="tab" aria-selected="true" data-stage="raw"><b>01</b><span>Raw intake</span><small>unsafe</small></button>
+        <button role="tab" aria-selected="false" data-stage="safe"><b>02</b><span>Redacted</span><small>shareable</small></button>
+        <button role="tab" aria-selected="false" data-stage="diagnosis"><b>03</b><span>Diagnosed</span><small>actionable</small></button>
+      </div>
+      <div class="workbench">
+        <div class="code-pane">
+          <div class="pane-head"><span id="stage-file">customer-evidence.json</span><span class="status status-red" id="stage-status">UNSAFE INPUT</span></div>
+          <pre aria-live="polite"><code id="trace-code"></code></pre>
+          <div class="scan-line" aria-hidden="true"></div>
         </div>
+        <aside class="stage-notes" id="stage-notes" aria-live="polite"></aside>
       </div>
-      <div class="terminal-window example-command">
-        <div class="code-head"><span>Terminal</span><span class="badge info">VALIDATED</span></div>
-        <pre><code><span class="prompt">$</span> <span class="command-name">tracekit validate</span> fixtures/rate-limit.json
-<span class="output">{"items": 1, "valid": true}</span>
+      <noscript><p class="noscript">The interactive example needs JavaScript. The CLI itself does not.</p></noscript>
+    </section>
 
-<span class="prompt">$</span> <span class="command-name">tracekit analyze</span> fixtures/rate-limit.json <span class="flag">--output</span> incident.md
-<span class="success-text">Wrote 1 safe incident bundle(s) to incident.md</span></code></pre>
+    <section class="boundary" aria-labelledby="boundary-title">
+      <div class="section-heading">
+        <p class="section-index">Trust boundary / 04</p>
+        <h2 id="boundary-title">Sanitize first. Build everything else from the safe copy.</h2>
       </div>
-      <div class="report-head"><h3>Classification report</h3><span class="badge warning">INVESTIGATE</span></div>
-      <dl class="result semantic-warning"><div><dt>Classification</dt><dd><code>rate_limit</code></dd></div><div><dt>Severity</dt><dd><code>P2</code></dd></div><div><dt>Confidence</dt><dd><code>high</code></dd></div><div><dt>Fingerprint</dt><dd><code>7b4755b5ccd192b9</code></dd></div></dl>
-      <p>The report recommends honoring <code>Retry-After</code>, adding bounded backoff with jitter, and measuring concurrency. It does not claim that any one factor is the proven root cause.</p>
-    </section>
-
-    <section id="case-story">
-      <h2>Complete case story: from report to result</h2>
-      <div class="story">
-        <article class="semantic-unsafe"><h3>The problem</h3><p>At 09:17, support receives “the production API is down” with a copied response. Forwarding it would leak a credential. Treating it as downtime would also misroute the case: the evidence is a fast 429 with a two-second retry instruction.</p></article>
-        <article class="semantic-warning"><h3>The investigation</h3><p>Support previews a safe version with <code>redact</code>, checks the intake with <code>validate</code>, then uses <code>analyze</code> to create a rate-limit bundle containing the request ID, sanitized body, next actions, and reproduction.</p></article>
-        <article class="semantic-info"><h3>The recurrence check</h3><p>Three morning reports are passed to <code>cluster</code>. Because request IDs and timestamps do not affect the fingerprint, they group under <code>7b4755b5ccd192b9</code>. This is evidence of a similar shape, not proof of one cause.</p></article>
-        <article class="semantic-safe"><h3>The result</h3><p>Engineering receives one reviewed escalation instead of three screenshots. Support first checks Retry-After handling, bounded retries, and concurrency. If the issue persists, the request ID and reproduction are ready for deeper investigation.</p></article>
+      <div class="pipeline" aria-label="Data flow architecture">
+        <article><span>01</span><h3>Load</h3><p>One JSON object, an array, or JSONL. Reject impossible status, latency and header shapes.</p></article>
+        <b aria-hidden="true">→</b>
+        <article class="redact-step"><span>02</span><h3>Redact</h3><p>Walk every nested value. Strip secret-shaped keys, Bearer tokens, API keys and email addresses.</p></article>
+        <b aria-hidden="true">→</b>
+        <article><span>03</span><h3>Classify</h3><p>Apply inspectable rules for authentication, rate limit, upstream, latency and contract failures.</p></article>
+        <b aria-hidden="true">→</b>
+        <article><span>04</span><h3>Hand off</h3><p>Render observations, next actions, reproduction steps and explicit escalation criteria.</p></article>
       </div>
-      <aside class="semantic-safe"><strong>What improved:</strong> no credential in the handoff, correct initial routing, fewer duplicate reports, and a clear escalation threshold.</aside>
+      <div class="boundary-note"><span>Important design choice</span><p>The report renderer never sees the original evidence. Redaction happens before a <code>Diagnosis</code> exists, keeping the sensitive boundary small enough to test directly.</p></div>
     </section>
 
-    <section id="quick-start">
-      <h2>Quick start</h2>
-      <pre><code><span>$</span> git clone https://github.com/Emmanuelasika/support-trace-analyzer.git
-<span>$</span> cd support-trace-analyzer
-<span>$</span> python -m venv .venv
-<span>$</span> source .venv/bin/activate
-<span>$</span> pip install -e .
-<span>$</span> tracekit analyze fixtures/rate-limit.json --output incident.md</code></pre>
-      <p>Windows PowerShell activation: <code>.venv\Scripts\Activate.ps1</code>.</p>
-      <ul><li><code>tracekit redact &lt;input&gt;</code> — preview sanitized evidence.</li><li><code>tracekit validate &lt;input&gt;</code> — validate JSON or JSONL.</li><li><code>tracekit analyze &lt;input&gt; --output &lt;file&gt;</code> — create a report.</li><li><code>tracekit cluster &lt;input&gt;</code> — count recurring fingerprints.</li></ul>
+    <section class="case-study" id="case-study" aria-labelledby="case-title">
+      <div class="case-image">
+        <img src="assets/incident-bundle.webp" alt="An editorial incident report with black redaction bars, classification markers and an evidence strip" width="1448" height="1086" loading="lazy">
+      </div>
+      <div class="case-copy">
+        <p class="section-index">Case file 429 / 05</p>
+        <h2 id="case-title">“Production is down” was actually a retry storm.</h2>
+        <p class="dek">A synthetic case based on a common developer-support pattern.</p>
+        <ol class="timeline">
+          <li><time>09:17</time><div><h3>The report arrives</h3><p>A copied 429 response includes a two-second <code>Retry-After</code>, a request ID—and a live Bearer credential.</p></div></li>
+          <li><time>09:20</time><div><h3>Support makes it safe</h3><p><code>redact</code> removes the credential recursively. <code>validate</code> confirms the intake contract before any handoff exists.</p></div></li>
+          <li><time>09:23</time><div><h3>The first response narrows</h3><p>The tool returns <code>rate_limit / P2 / high</code> and recommends bounded backoff, jitter and concurrency measurement.</p></div></li>
+          <li><time>09:31</time><div><h3>Three reports become one pattern</h3><p><code>cluster</code> ignores volatile request IDs and timestamps, grouping the morning failures under one safe fingerprint.</p></div></li>
+        </ol>
+        <blockquote>Engineering receives one reviewed artifact instead of three screenshots. The secret is gone; the claim is narrower; the next check is obvious.</blockquote>
+      </div>
     </section>
 
-    <section id="architecture">
-      <h2>Architecture</h2>
-      <div class="architecture" aria-label="Support Trace Analyzer data flow"><div><strong>JSON / JSONL</strong><span>Input</span></div><b>→</b><div><strong>Validation</strong><span>Contract</span></div><b>→</b><div class="boundary"><strong>Redaction</strong><span>Trust boundary</span></div><b>→</b><div><strong>Diagnosis</strong><span>Rules</span></div><b>→</b><div><strong>Markdown / JSON</strong><span>Output</span></div></div>
-      <p>The core analysis module performs validation, redaction, classification, fingerprinting, and rendering without network or filesystem access. The CLI owns input and output. This keeps the sensitive boundary small and directly testable.</p>
+    <section class="commands" id="install" aria-labelledby="commands-title">
+      <div class="section-heading">
+        <p class="section-index">Use it locally / 06</p>
+        <h2 id="commands-title">Four commands. One clear boundary.</h2>
+      </div>
+      <div class="command-grid">
+        <article><span>Preview</span><h3>redact</h3><p>See the sanitized copy before anything leaves your machine.</p><code><i>$</i> tracekit redact case.json</code></article>
+        <article><span>Gate</span><h3>validate</h3><p>Reject malformed evidence with a scriptable non-zero exit.</p><code><i>$</i> tracekit validate case.jsonl</code></article>
+        <article><span>Build</span><h3>analyze</h3><p>Create reviewed Markdown or machine-readable JSON.</p><code><i>$</i> tracekit analyze case.json \<br>&nbsp;&nbsp;--output incident.md</code></article>
+        <article><span>Connect</span><h3>cluster</h3><p>Group repeated sanitized shapes without volatile identifiers.</p><code><i>$</i> tracekit cluster morning.jsonl</code></article>
+      </div>
+      <div class="install-strip">
+        <div><span>Install from source</span><code><i>$</i> git clone https://github.com/Emmanuelasika/support-trace-analyzer.git<br><i>$</i> cd support-trace-analyzer && python -m venv .venv<br><i>$</i> source .venv/bin/activate && pip install -e .<br><i>$</i> tracekit analyze fixtures/rate-limit.json --output incident.md</code></div>
+        <aside><strong>Everything stays local.</strong><p>No API key. No account. No telemetry. The core module performs no network or filesystem access; the CLI alone owns reads and writes.</p></aside>
+      </div>
     </section>
 
-    <section id="limitations" class="semantic-unsafe">
-      <h2>Limitations and tradeoffs</h2>
-      <ul><li><strong>Redaction is pattern-based.</strong> Unusual secrets can evade it and innocent matches can be removed. Review the output.</li><li><strong>It is not comprehensive DLP.</strong> Names, phone numbers, and arbitrary customer data are not detected.</li><li><strong>Classification is a routing heuristic.</strong> It cannot inspect live health, SDK versions, account limits, logs, traces, or provider telemetry.</li><li><strong>Fingerprints are clues, not incident IDs.</strong> Similar evidence can have different causes.</li><li><strong>A human owns the handoff.</strong> There is no automatic ticket submission.</li></ul>
+    <section class="limits" aria-labelledby="limits-title">
+      <p class="section-index">Honest limits / 07</p>
+      <div><h2 id="limits-title">A strong first pass,<br><em>not a final verdict.</em></h2></div>
+      <div class="limit-list">
+        <p><span>01</span>Pattern redaction can miss unusual secrets. Review every output.</p>
+        <p><span>02</span>Classification is routing guidance, not root-cause proof.</p>
+        <p><span>03</span>Fingerprints identify similar shapes, not global incidents.</p>
+        <p><span>04</span>Names, phone numbers and arbitrary PII need another control.</p>
+      </div>
     </section>
 
-    <section class="closing"><h2>Inspect the implementation or run the checked-in example.</h2><p>The rules, fixture, generated report, and tests are public.</p><a class="button" href="https://github.com/Emmanuelasika/support-trace-analyzer">View on GitHub ↗</a></section>
+    <section class="closing">
+      <div><p class="section-index">Open source / MIT</p><h2>Better evidence makes<br>better support.</h2></div>
+      <div><p>Inspect every rule. Run the fixture. Read the tests. Change the heuristics to match the product you support.</p><a class="primary" href="https://github.com/Emmanuelasika/support-trace-analyzer">Explore the repository <span>↗</span></a></div>
+    </section>
   </main>
-  <footer><span>Support Trace Analyzer · MIT licensed</span><span>Designed and built by <a href="https://github.com/Emmanuelasika">Emmanuel Asika</a></span></footer>
+
+  <footer>
+    <a class="wordmark" href="#top"><i></i> Support Trace Analyzer</a>
+    <p>Designed and built by <a href="https://github.com/Emmanuelasika">Emmanuel Asika</a>.</p>
+    <a href="#top">Back to top ↑</a>
+  </footer>
 </body>
 </html>
