@@ -20,6 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build container
-        run: docker build --tag tracekit:ci .
+        run: docker build --tag support-trace-analyzer:ci .
       - name: Smoke-test CLI container
-        run: docker run --rm tracekit:ci --version
+        run: docker run --rm support-trace-analyzer:ci --version

@@ -3,117 +3,217 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="TraceKit turns raw API failure evidence into safe, reproducible engineering escalations.">
-  <meta property="og:title" content="TraceKit — Incident evidence, made useful">
-  <meta property="og:description" content="A privacy-first incident analysis CLI for developer support teams.">
-  <title>TraceKit — Incident evidence, made useful</title>
+  <meta name="description" content="Follow a real Support Trace Analyzer investigation from unsafe customer evidence to a reviewable engineering escalation.">
+  <meta property="og:title" content="Support Trace Analyzer — The evidence room">
+  <meta property="og:description" content="A worked Support Trace Analyzer case: validate, redact, diagnose, cluster and hand off—without uploading the evidence.">
+  <title>Support Trace Analyzer — The evidence room</title>
   <link rel="stylesheet" href="site.css">
 </head>
 <body>
-  <nav class="nav">
-    <a class="brand" href="#top"><span class="mark">T</span> TraceKit</a>
-    <div class="nav-links">
-      <a href="#workflow">Workflow</a>
-      <a href="#architecture">Architecture</a>
-      <a href="#example">Example</a>
-      <a class="button small" href="https://github.com/Emmanuelasika/TraceKit">View source ↗</a>
-    </div>
-  </nav>
+  <header class="casebar">
+    <a class="wordmark" href="#top"><span>STA</span> SUPPORT TRACE ANALYZER / EVIDENCE ROOM</a>
+    <div class="case-status"><i></i> CASE STUDY · SYNTHETIC EVIDENCE</div>
+    <a class="source" href="https://github.com/Emmanuelasika/support-trace-analyzer">SOURCE ↗</a>
+  </header>
 
   <main id="top">
-    <section class="hero">
-      <div class="eyebrow"><span></span> Privacy-first developer support tooling</div>
-      <h1>Turn “the API is broken” into an escalation engineering can use.</h1>
-      <p class="lede">TraceKit validates incident evidence, removes secrets and personal data, classifies the failure, and produces a consistent investigation bundle—locally, deterministically, and without uploading customer logs.</p>
-      <div class="actions">
-        <a class="button" href="#example">See a real bundle</a>
-        <a class="text-link" href="https://github.com/Emmanuelasika/TraceKit#quick-start">Install the CLI <span>→</span></a>
-      </div>
-      <div class="terminal" aria-label="TraceKit terminal example">
-        <div class="terminal-bar"><i></i><i></i><i></i><span>incident-response / terminal</span></div>
-        <pre><span class="prompt">$</span> tracekit analyze evidence.json --output incident.md
-<span class="success">✓</span> Contract validated
-<span class="success">✓</span> 4 sensitive values redacted
-<span class="success">✓</span> Classified as <strong>rate_limit · P2 · high confidence</strong>
-<span class="success">✓</span> Wrote safe incident bundle <em>7b4755b5ccd192b9</em></pre>
-      </div>
-    </section>
-
-    <section class="proof">
-      <div><strong>0</strong><span>network calls</span></div>
-      <div><strong>JSON · JSONL</strong><span>batch-ready inputs</span></div>
-      <div><strong>4</strong><span>operator commands</span></div>
-      <div><strong>8</strong><span>regression tests</span></div>
-    </section>
-
-    <section id="workflow" class="section">
-      <div class="section-heading">
-        <span class="kicker">The support workflow</span>
-        <h2>Evidence in. Ambiguity out.</h2>
-        <p>Every stage exists to shorten time-to-resolution while keeping customer data out of tickets and chat threads.</p>
-      </div>
-      <div class="feature-grid">
-        <article class="feature"><span class="number">01</span><h3>Validate the contract</h3><p>Reject malformed status codes, latency, headers, and batch shapes with bounded operator errors.</p><code>tracekit validate evidence.jsonl</code></article>
-        <article class="feature"><span class="number">02</span><h3>Redact recursively</h3><p>Sanitize credential-shaped keys, bearer tokens, API keys, passwords, secrets, and email addresses at any depth.</p><code>tracekit redact evidence.json</code></article>
-        <article class="feature"><span class="number">03</span><h3>Diagnose consistently</h3><p>Classify auth, rate-limit, request-contract, latency, upstream, and unknown failures using inspectable rules.</p><code>confidence: high</code></article>
-        <article class="feature"><span class="number">04</span><h3>Cluster safely</h3><p>Group recurring failures using fingerprints that exclude request IDs and occurrence timestamps.</p><code>tracekit cluster evidence.jsonl</code></article>
-      </div>
-    </section>
-
-    <section id="architecture" class="section architecture">
-      <div class="section-heading">
-        <span class="kicker">Architecture</span>
-        <h2>A small, deliberate trust boundary.</h2>
-        <p>Raw evidence never reaches a serializer. Redaction happens before diagnosis output exists.</p>
-      </div>
-      <div class="flow" role="img" aria-label="TraceKit architecture: input, validation, redaction, diagnosis, output">
-        <div class="node"><b>01</b><strong>Evidence</strong><span>JSON / JSONL</span></div>
-        <span class="arrow">→</span>
-        <div class="node"><b>02</b><strong>Contract</strong><span>typed validation</span></div>
-        <span class="arrow">→</span>
-        <div class="node accent"><b>03</b><strong>Redaction</strong><span>trust boundary</span></div>
-        <span class="arrow">→</span>
-        <div class="node"><b>04</b><strong>Diagnosis</strong><span>deterministic rules</span></div>
-        <span class="arrow">→</span>
-        <div class="node"><b>05</b><strong>Bundle</strong><span>Markdown / JSON</span></div>
-      </div>
-      <div class="principles">
-        <div><h3>No hidden inference</h3><p>Classification logic is readable Python, versioned with tests, and suitable for review during an escalation.</p></div>
-        <div><h3>No silent exfiltration</h3><p>The application performs no network requests. Evidence remains on the operator’s machine.</p></div>
-        <div><h3>No false certainty</h3><p>Every result includes an explicit confidence level, observations, next actions, and escalation criteria.</p></div>
-      </div>
-    </section>
-
-    <section id="example" class="section example">
-      <div class="section-heading">
-        <span class="kicker">Generated artifact</span>
-        <h2>An escalation that answers the next question.</h2>
-      </div>
-      <div class="report">
-        <div class="report-head"><div><span>INCIDENT BUNDLE</span><h3>7b4755b5ccd192b9</h3></div><span class="severity">P2 · HIGH CONFIDENCE</span></div>
-        <div class="report-grid">
-          <div><small>CLASSIFICATION</small><strong>Rate limit or concurrency pressure</strong></div>
-          <div><small>REQUEST ID</small><strong>req_demo_123</strong></div>
-          <div><small>OBSERVED LATENCY</small><strong>214 ms</strong></div>
-          <div><small>ENVIRONMENT</small><strong>Production</strong></div>
+    <section class="cover">
+      <div class="case-number">CASE TK–0429 <span>29 JUL 2026</span></div>
+      <div class="cover-grid">
+        <div>
+          <p class="overline">A worked developer-support investigation</p>
+          <h1>The API is “down.”<br><em>The evidence says something else.</em></h1>
+          <p class="intro">Walk the actual checked-in fixture through Support Trace Analyzer: from an unsafe customer paste to a rate-limit diagnosis, a stable recurrence signal, and an escalation engineering can act on.</p>
+          <div class="cover-actions">
+            <a href="#timeline" class="primary">OPEN THE CASE FILE ↓</a>
+            <a href="https://github.com/Emmanuelasika/support-trace-analyzer#see-it-work-in-60-seconds">RUN IT LOCALLY ↗</a>
+          </div>
         </div>
-        <div class="report-body">
-          <h4>Recommended actions</h4>
-          <ol><li>Honor <code>Retry-After</code> when present.</li><li>Use bounded exponential backoff with jitter.</li><li>Measure concurrency before requesting a limit change.</li></ol>
-          <h4>Safe evidence</h4>
-          <pre>{"status_code": 429, "authorization": "[REDACTED]"}</pre>
-        </div>
+        <aside class="intake-stamp">
+          <span class="stamp-label">INTAKE</span>
+          <dl>
+            <div><dt>Claim</dt><dd>“Production API is down”</dd></div>
+            <div><dt>Observed</dt><dd><b>HTTP 429</b> · 214 ms</dd></div>
+            <div><dt>Risk</dt><dd>Bearer credential pasted</dd></div>
+            <div><dt>Signal</dt><dd>Retry-After: 2</dd></div>
+          </dl>
+          <strong class="unsafe">UNSAFE TO FORWARD</strong>
+        </aside>
       </div>
     </section>
 
-    <section class="section cta">
-      <span class="kicker">Open source · MIT licensed</span>
-      <h2>Make the next escalation faster than the last.</h2>
-      <p>Run locally, inspect every rule, and adapt the contract to your support operation.</p>
-      <a class="button light" href="https://github.com/Emmanuelasika/TraceKit">Explore TraceKit on GitHub ↗</a>
+    <nav class="index">
+      <span>CASE INDEX</span>
+      <a href="#timeline">01 / Investigation</a>
+      <a href="#transformation">02 / Evidence diff</a>
+      <a href="#architecture">03 / Trust boundary</a>
+      <a href="#outcome">04 / Outcome</a>
+    </nav>
+
+    <section id="timeline" class="case-section">
+      <header class="section-title">
+        <span>01</span>
+        <div><p>INVESTIGATION LOG</p><h2>What happens in the first fourteen minutes</h2></div>
+      </header>
+      <div class="timeline">
+        <article>
+          <time>09:17</time>
+          <div class="rail"><i></i></div>
+          <div class="entry">
+            <span class="tag danger">CUSTOMER INTAKE</span>
+            <h3>A vague outage report arrives with a live secret attached.</h3>
+            <p>The status is 429, not a connection failure. The response took 214 ms and includes <code>Retry-After: 2</code>. Before anybody forwards it, the copied Bearer token has to leave the artifact.</p>
+            <pre class="raw"><span>{</span>
+  "summary": "POST /v1/messages returned 429",
+  "request_id": "req_demo_123",
+  "body": "Authorization: Bearer <mark>sk_demo_secret_123456789</mark>"
+<span>}</span></pre>
+          </div>
+        </article>
+        <article>
+          <time>09:20</time>
+          <div class="rail"><i></i></div>
+          <div class="entry">
+            <span class="tag">LOCAL SAFETY PASS</span>
+            <h3>The operator validates first, then previews the redaction.</h3>
+            <div class="command"><b>$</b> tracekit validate fixtures/rate-limit.json<br><strong>{"items": 1, "valid": true}</strong></div>
+            <div class="command"><b>$</b> tracekit redact fixtures/rate-limit.json<br><strong>"body": "Authorization: Bearer [REDACTED]"</strong></div>
+            <p class="note">Nothing is uploaded. The source file is not modified. The operator sees the safe representation before creating a report.</p>
+          </div>
+        </article>
+        <article>
+          <time>09:23</time>
+          <div class="rail"><i></i></div>
+          <div class="entry">
+            <span class="tag blue">DETERMINISTIC TRIAGE</span>
+            <h3>The 429 routes the case away from an availability investigation.</h3>
+            <div class="diagnosis">
+              <div><small>CLASS</small><strong>rate_limit</strong></div>
+              <div><small>SEVERITY</small><strong>P2</strong></div>
+              <div><small>CONFIDENCE</small><strong>high</strong></div>
+              <div><small>FINGERPRINT</small><strong>7b4755b5ccd192b9</strong></div>
+            </div>
+            <p>The rule is inspectable: status 429 means rate-limit or concurrency pressure. Support Trace Analyzer suggests honoring Retry-After, bounded backoff with jitter, and measuring concurrency. It does not invent a root cause.</p>
+          </div>
+        </article>
+        <article>
+          <time>09:31</time>
+          <div class="rail"><i></i></div>
+          <div class="entry">
+            <span class="tag green">HANDOFF READY</span>
+            <h3>Three occurrences become one reviewable investigation.</h3>
+            <div class="cluster-row"><span>7b4755b5ccd192b9</span><b>rate_limit</b><em>× 3 occurrences</em></div>
+            <p>Request IDs and occurrence timestamps do not affect the fingerprint. Support sends one sanitized bundle with the reproduction and escalation threshold—not three screenshots.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="transformation" class="case-section evidence">
+      <header class="section-title">
+        <span>02</span>
+        <div><p>EVIDENCE TRANSFORMATION</p><h2>What survives the trust boundary—and why</h2></div>
+      </header>
+      <div class="diff">
+        <div class="sheet unsafe-sheet">
+          <header><span>BEFORE / CUSTOMER PASTE</span><b>DO NOT FORWARD</b></header>
+          <pre>{
+  "summary": "POST /v1/messages returned 429",
+  "status_code": 429,
+  "request_id": "req_demo_123",
+  "latency_ms": 214,
+  "headers": {
+    "retry-after": "2"
+  },
+  "body": "Authorization: Bearer
+<mark>  sk_demo_secret_123456789</mark>"
+}</pre>
+        </div>
+        <div class="cut"><span>REDACT</span>→</div>
+        <div class="sheet safe-sheet">
+          <header><span>AFTER / SAFE EVIDENCE</span><b>REVIEWABLE</b></header>
+          <pre>{
+  "summary": "POST /v1/messages returned 429",
+  "status_code": 429,
+  "request_id": "req_demo_123",
+  "latency_ms": 214,
+  "headers": {
+    "retry-after": "2"
+  },
+  "body": "Authorization: Bearer
+<mark>  [REDACTED]</mark>"
+}</pre>
+        </div>
+      </div>
+      <div class="annotations">
+        <p><b>Kept:</b> status, latency, request ID and Retry-After all help an engineer investigate.</p>
+        <p><b>Removed:</b> the credential is neither necessary nor appropriate for the escalation.</p>
+        <p><b>Still reviewed:</b> pattern redaction is a guardrail, not a complete DLP system.</p>
+      </div>
+    </section>
+
+    <section id="architecture" class="case-section blueprint">
+      <header class="section-title">
+        <span>03</span>
+        <div><p>SYSTEM BLUEPRINT</p><h2>A deliberately narrow path from raw input to output</h2></div>
+      </header>
+      <div class="pipeline" aria-label="Support Trace Analyzer data flow">
+        <div><small>INPUT</small><strong>JSON / JSONL</strong><p>one case or a batch</p></div>
+        <i>01</i>
+        <div><small>CONTRACT</small><strong>Validate</strong><p>bounded field rules</p></div>
+        <i>02</i>
+        <div class="boundary"><small>TRUST BOUNDARY</small><strong>Redact</strong><p>keys + text patterns</p></div>
+        <i>03</i>
+        <div><small>ROUTING</small><strong>Diagnose</strong><p>six inspectable classes</p></div>
+        <i>04</i>
+        <div><small>OUTPUT</small><strong>Bundle</strong><p>Markdown or JSON</p></div>
+      </div>
+      <div class="design-notes">
+        <article><b>NO NETWORK</b><h3>Local is the privacy feature</h3><p>The core makes no network or filesystem calls. Evidence does not leave the operator’s machine unless the operator chooses to share the reviewed output.</p></article>
+        <article><b>NO MYSTERY MODEL</b><h3>Rules can be challenged</h3><p>A 429 maps to rate limiting; 5xx maps to an upstream failure; latency over 15 seconds maps to latency. The policy lives in readable Python and tests.</p></article>
+        <article><b>NO FALSE IDENTITY</b><h3>A fingerprint is only a clue</h3><p>The hash groups similar sanitized evidence. It is not proof of one root cause, and small evidence differences may split a real incident.</p></article>
+      </div>
+    </section>
+
+    <section id="outcome" class="case-section outcome">
+      <header class="section-title">
+        <span>04</span>
+        <div><p>CASE OUTCOME</p><h2>The value is a better next decision</h2></div>
+      </header>
+      <div class="outcome-grid">
+        <div class="verdict">
+          <span>WORKING HYPOTHESIS</span>
+          <h3>Concurrency or retry pressure—not provider downtime.</h3>
+          <p>The evidence supports a rate-limit investigation. It does not yet prove whether traffic volume, concurrency, or retry behavior caused it.</p>
+        </div>
+        <ol>
+          <li><b>01</b><span><strong>Contain</strong> Honor the two-second Retry-After value.</span></li>
+          <li><b>02</b><span><strong>Correct</strong> Add bounded exponential backoff with jitter.</span></li>
+          <li><b>03</b><span><strong>Measure</strong> Capture concurrency and request volume.</span></li>
+          <li><b>04</b><span><strong>Escalate</strong> Send the request ID and sanitized reproduction if it persists.</span></li>
+        </ol>
+      </div>
+      <blockquote>“Useful support tooling should make uncertainty explicit, not decorate it.”<cite>— Emmanuel Asika, project author</cite></blockquote>
+    </section>
+
+    <section class="limitations">
+      <div><span>FIELD NOTES</span><h2>What Support Trace Analyzer does not do</h2></div>
+      <ul>
+        <li>It does not discover root cause or query provider telemetry.</li>
+        <li>It does not detect every possible secret or every category of PII.</li>
+        <li>It does not auto-submit tickets; a human owns the final handoff.</li>
+        <li>It does not replace logs, traces, metrics, or an incident platform.</li>
+      </ul>
+    </section>
+
+    <section class="final">
+      <p>REPRODUCE THIS CASE</p>
+      <h2>The fixture, report, rules and tests are all in the repository.</h2>
+      <div class="install"><span>$</span> git clone https://github.com/Emmanuelasika/support-trace-analyzer.git</div>
+      <a href="https://github.com/Emmanuelasika/support-trace-analyzer">INSPECT THE SOURCE ↗</a>
     </section>
   </main>
 
-  <footer><span>TraceKit · Built for evidence-driven support engineering</span><a href="https://github.com/Emmanuelasika">Emmanuel Asika</a></footer>
+  <footer><span>SUPPORT TRACE ANALYZER · OPEN SOURCE / MIT</span><span>DESIGNED &amp; BUILT BY <a href="https://github.com/Emmanuelasika">EMMANUEL ASIKA</a></span></footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-"""Typed incident analysis for TraceKit.
+"""Typed incident analysis for Support Trace Analyzer.
 
 The module is deliberately pure: it performs validation, recursive redaction,
 classification, deduplication fingerprints, and report generation without

@@ -1,6 +1,6 @@
 # Architecture
 
-TraceKit keeps analysis pure and filesystem access at the CLI boundary.
+Support Trace Analyzer keeps analysis pure and filesystem access at the CLI boundary.
 
 ```text
 JSON / JSONL evidence
@@ -22,5 +22,5 @@ as identity.
 
 ## Failure behavior
 
-Malformed contracts return exit code `2` with a bounded error. TraceKit performs
+Malformed contracts return exit code `2` with a bounded error. The analyzer performs
 no network calls and does not silently upload or persist input evidence.
