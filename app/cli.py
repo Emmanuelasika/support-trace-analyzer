@@ -1,4 +1,4 @@
-"""Command-line interface for TraceKit."""
+"""Command-line interface for Support Trace Analyzer."""
 from __future__ import annotations
 
 import argparse
@@ -25,7 +25,7 @@ def load_items(path: Path) -> list[dict[str, Any]]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tracekit", description="Create safe, reproducible incident bundles.")
-    parser.add_argument("--version", action="version", version="TraceKit 1.0.0")
+    parser.add_argument("--version", action="version", version="Support Trace Analyzer 1.0.0")
     commands = parser.add_subparsers(dest="command", required=True)
     redact = commands.add_parser("redact", help="Print sanitized evidence without writing a report.")
     redact.add_argument("input", type=Path)
